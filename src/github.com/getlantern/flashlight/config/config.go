@@ -62,7 +62,6 @@ type Config struct {
 	CpuProfile      string
 	MemProfile      string
 	UpdateServerURL string
-	UIAddr          string // UI HTTP server address
 	Client          *client.ClientConfig
 	ProxiedSites    *proxiedsites.Config // List of proxied site domains that get routed through Lantern rather than accessed directly
 	TrustedCAs      []*CA
@@ -325,11 +324,6 @@ func (updated *Config) applyFlags(flags map[string]interface{}) error {
 			updated.CloudConfigCA = value.(string)
 		case "instanceid":
 			updated.Client.DeviceID = value.(string)
-
-		// HTTP-server
-		case "uiaddr":
-			updated.UIAddr = value.(string)
-
 		case "cpuprofile":
 			updated.CpuProfile = value.(string)
 		case "memprofile":
@@ -350,10 +344,6 @@ func (updated *Config) applyFlags(flags map[string]interface{}) error {
 // flashlight, this function should be updated to provide sensible defaults for
 // those settings.
 func (cfg *Config) ApplyDefaults() {
-	if cfg.UIAddr == "" {
-		cfg.UIAddr = "127.0.0.1:16823"
-	}
-
 	if cfg.UpdateServerURL == "" {
 		cfg.UpdateServerURL = "https://update.getlantern.org"
 	}
@@ -445,6 +435,23 @@ func (cfg *Config) applyClientDefaults() {
 	// Always make sure we have a map of ChainedServers
 	if cfg.Client.ChainedServers == nil {
 		cfg.Client.ChainedServers = make(map[string]*client.ChainedServerInfo)
+	}
+
+	if cfg.Client.ProxiedCONNECTPorts == nil {
+		cfg.Client.ProxiedCONNECTPorts = []int{
+			// Standard HTTP(S) ports
+			80, 443,
+			// Common unprivileged HTTP(S) ports
+			8080, 8443,
+			// XMPP
+			5222, 5223, 5224,
+			// Android
+			5228, 5229,
+			// udpgw
+			7300,
+			// Google Hangouts TCP Ports (see https://support.google.com/a/answer/1279090?hl=en)
+			19305, 19306, 19307, 19308, 19309,
+		}
 	}
 
 	// Sort servers so that they're always in a predictable order

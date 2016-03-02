@@ -78,6 +78,14 @@ app.controller('RootCtrl', ['$rootScope', '$scope', '$compile', '$window', '$htt
     };
 
 
+    $scope.trackBookmark = function(name) {
+      return gaMgr.trackBookmark(name);
+    };
+
+    $scope.trackLink = function(name) {
+      return gaMgr.trackLink(name);
+    };
+
     $scope.closeModal = function() {
       $rootScope.hideMobileAd();
 
@@ -151,6 +159,13 @@ app.controller('SettingsCtrl', ['$scope', 'MODAL', 'DataStream', 'gaMgr', functi
       DataStream.send('Settings', obj);
   }
 
+  $scope.changeSystemProxy = function(systemProxy) {
+      var obj = {
+        systemProxy: systemProxy
+      };
+      DataStream.send('Settings', obj);
+  }
+
   $scope.$watch('model.settings.systemProxy', function (systemProxy) {
     $scope.systemProxy = systemProxy;
   });
@@ -171,7 +186,16 @@ app.controller('MobileAdCtrl', ['$scope', 'MODAL', 'gaMgr', function($scope, MOD
     $scope.linkCopied = true;
     //$scope.closeModal();
     gaMgr.trackCopyLink();
-  }
+  };
+
+  $scope.trackSocialLink = function(name) {
+    gaMgr.trackSocialLink(name);
+  };
+
+  $scope.trackLink = function(name) {
+    gaMgr.trackLink(name);
+  };
+
 }]);
 
 app.controller('ProxiedSitesCtrl', ['$rootScope', '$scope', '$filter', 'SETTING', 'INTERACTION', 'INPUT_PAT', 'MODAL', 'ProxiedSites', function($rootScope, $scope, $filter, SETTING, INTERACTION, INPUT_PAT, MODAL, ProxiedSites) {
